@@ -3,7 +3,7 @@
   (:require
     [boot.pod :as pod]
     [boot.util :as util]
-    [boot.core :as core]))
+    [boot.core :refer :all]))
 
 (core/deftask serve
          "Start a web server on localhost and serve a directory.
