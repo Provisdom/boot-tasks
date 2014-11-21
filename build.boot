@@ -1,4 +1,5 @@
 (set-env!
+  :src-paths    #{"src"}
   :wagons       '[[s3-wagon-private "1.1.2"]]
   :repositories '[["clojars" "http://clojars.org/repo/"]
                   ["maven-central" "http://repo1.maven.org/maven2/"]
