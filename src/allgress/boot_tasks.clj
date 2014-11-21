@@ -5,7 +5,7 @@
     [boot.util :as util]
     [boot.core :refer :all]))
 
-(core/deftask serve
+(deftask serve
          "Start a web server on localhost and serve a directory.
 
           If no directory is specified the current one is used.  Listens on
