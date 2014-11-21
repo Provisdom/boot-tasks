@@ -11,7 +11,7 @@
                   [allgress/logging "0.2.1"]])
 
 (require '[tailrecursion.boot-useful :refer :all])
-(def +version+ "0.0.3")
+(def +version+ "0.0.4")
 (useful! +version+)
 
 (task-options!
