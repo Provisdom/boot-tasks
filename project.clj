@@ -1,0 +1,11 @@
+(defproject allgress/boot-tasks "0.1.0-SNAPSHOT"
+  :description "FIXME: write description"
+  :url "http://example.com/FIXME"
+  :license {:name "Eclipse Public License"
+            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :dependencies [[org.clojure/clojure "1.7.0-alpha4"]]
+  :plugins [[s3-wagon-private "1.1.2"]]
+  :repositories [["s3" {:url           "s3p://aurora-repository/releases/"
+                        :username      :env/aws_key
+                        :passphrase    :env/aws_secret
+                        :sign-releases false}]])
