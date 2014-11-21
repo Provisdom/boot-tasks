@@ -16,7 +16,7 @@
                                                      [compojure "1.2.1"]]})
                dir (or dir ".")
                port (or port 3000)]
-           (core/cleanup
+           (cleanup
              (util/info "<< stopping Jetty... >>")
              (pod/eval-in worker (.stop server)))
            (with-pre-wrap
@@ -25,7 +25,7 @@
                                    '[compojure.handler :refer [site]]
                                    '[compojure.route :refer [files]])
                           (def server (run-jetty (files "/" {:root ~dir}) {:port ~port :join? false})))
-             (core/add-sync! (str dir "bower_components/") ["bower_components/"])
+             (add-sync! (str dir "bower_components/") ["bower_components/"])
              (util/info "<< started web server on http://localhost:%d (serving: %s) >>\n" port dir))))
 
 
