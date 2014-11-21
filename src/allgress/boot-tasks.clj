@@ -1,4 +1,5 @@
 (ns allgress.boot-tasks
+  {:boot/export-tasks true}
   (:require
     [boot.pod :as pod]
     [boot.util :as util]
