@@ -15,10 +15,10 @@
 (useful! +version+)
 
 (task-options!
-  pom [:project 'allgress/boot
+  pom [:project 'allgress/boot-tasks
        :version +version+
        :description "Allgress boot-tasks."
-       #_:url #_"https://github.com/adzerk/boot-reload"
-       :scm {:url "https://github.com/allgress/boot"}
-       #_:license #_{:name "Eclipse Public License"
+       :url "https://github.com/allgress/boot-tasks"
+       :scm {:url "https://github.com/allgress/boot-tasks"}
+       :license {:name "Eclipse Public License"
                  :url "http://www.eclipse.org/legal/epl-v10.html"}])
