@@ -1,4 +1,4 @@
-(ns allgress.boot
+(ns allgress.boot-tasks
   (:require
     [boot.pod :as pod]
     [boot.util :as util]
