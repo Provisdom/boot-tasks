@@ -19,4 +19,14 @@
        :url "https://github.com/allgress/boot-tasks"
        :scm {:url "https://github.com/allgress/boot-tasks"}
        :license {:name "Eclipse Public License"
-                 :url  "http://www.eclipse.org/legal/epl-v10.html"}])
+                 :url  "http://www.eclipse.org/legal/epl-v10.html"}]
+  push [:repo "s3"])
+
+(deftask release
+         "Publish released library to s3 and local repo"
+         []
+         (comp (pom)
+               (add-src)
+               (jar)
+               (install)
+               (push)))
