@@ -3,7 +3,7 @@
   :wagons       '[[s3-wagon-private "1.1.2"]]
   :repositories '[["clojars" "http://clojars.org/repo/"]
                   ["maven-central" "http://repo1.maven.org/maven2/"]
-                  ["s3" {:url "s3p://aurora-repository/releases/" :creds :gpg}]]
+                  ["s3" {:url "s3p://aurora-repository/releases/" :username :env/aws_key :passphrase :env/aws_secret}]]
   :dependencies '[[org.clojure/clojure "1.7.0-alpha4" :scope "provided"]
                   [boot/core "2.0.0-pre26" :scope "provided"]
                   [tailrecursion/boot-useful "0.1.3" :scope "test"]])
