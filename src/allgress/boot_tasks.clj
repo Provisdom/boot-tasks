@@ -25,7 +25,16 @@
                                    '[compojure.handler :refer [site]]
                                    '[compojure.route :refer [files]])
                           (def server (run-jetty (files "/" {:root ~dir}) {:port ~port :join? false})))
-             (add-sync! (str dir "bower_components/") ["bower_components/"])
              (util/info "<< started web server on http://localhost:%d (serving: %s) >>\n" port dir))))
+
+(deftask sync-target
+         "Sync directory contents with a copy in target."
+         [d dirs PATHS #{[str str]} "Paths to directories to sync"
+          t target TARGET str "Target folder"]
+         (let [target (or target "target/")]
+           (with-pre-wrap
+             (doseq [[src dest] dirs]
+               (util/info "Sync %s to %s\n" src (str target dest))
+               (add-sync! (str target dest) [src])))))
 
 

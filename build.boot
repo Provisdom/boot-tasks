@@ -9,7 +9,7 @@
                   [tailrecursion/boot-useful "0.1.3" :scope "test"]])
 
 (require '[tailrecursion.boot-useful :refer :all])
-(def +version+ "0.0.3")
+(def +version+ "0.0.4")
 (useful! +version+)
 
 (task-options!
@@ -22,11 +22,16 @@
                  :url  "http://www.eclipse.org/legal/epl-v10.html"}]
   push [:repo "s3"])
 
-(deftask release
+(deftask build
          "Publish released library to s3 and local repo"
          []
          (comp (pom)
                (add-src)
                (jar)
-               (install)
+               (install)))
+
+(deftask release
+         "Publish released library to s3 and local repo"
+         []
+         (comp (build)
                (push)))
