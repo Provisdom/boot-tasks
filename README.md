@@ -1,6 +1,6 @@
-# boot
+# boot-tasks
 
-A Clojure library designed to ... well, that part is up to you.
+Custom Allgress tasks for boot.
 
 ## Usage
 
