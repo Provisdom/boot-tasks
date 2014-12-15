@@ -1,19 +1,23 @@
+(set-env! :dependencies '[[leiningen-core "2.5.0"]])
+(use 'leiningen.core.project)
+
+(eval (read-string (slurp "project.clj")))
+
 (set-env!
   :src-paths #{"src"}
+  :rsc-paths #{"resources"}
   :wagons '[[s3-wagon-private "1.1.2"]]
   :repositories [["clojars" "http://clojars.org/repo/"]
                  ["maven-central" "http://repo1.maven.org/maven2/"]
                  ["s3" {:url "s3p://aurora-repository/releases/" :username (System/getenv "AWS_KEY") :passphrase (System/getenv "AWS_SECRET")}]]
-  :dependencies '[[org.clojure/clojure "1.7.0-alpha4" :scope "provided"]
-                  [boot/core "2.0.0-pre26" :scope "provided"]
-                  [tailrecursion/boot-useful "0.1.3" :scope "test"]])
+  :dependencies (:dependencies project))
 
 (require '[tailrecursion.boot-useful :refer :all])
-(def +version+ "0.0.4")
+(def +version+ (:version project))
 (useful! +version+)
 
 (task-options!
-  pom [:project 'allgress/boot-tasks
+  pom [:project (symbol (str (:group project) "/" (:name project)))
        :version +version+
        :description "Allgress boot-tasks."
        :url "https://github.com/allgress/boot-tasks"

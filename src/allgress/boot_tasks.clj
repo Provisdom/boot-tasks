@@ -3,7 +3,11 @@
   (:require
     [boot.pod :as pod]
     [boot.util :as util]
-    [boot.core :refer :all]))
+    [boot.core :refer :all]
+    [boot.task.built-in :refer :all]
+    [clojure.java.io :as io]
+    [boot.task-helpers :as helpers]
+    [adzerk.boot-cljs :refer [cljs]]))
 
 (deftask serve
          "Start a web server on localhost and serve a directory.
@@ -37,4 +41,32 @@
                (util/info "Sync %s to %s\n" src (str target dest))
                (add-sync! (str target dest) [src])))))
 
+(deftask cljs-testable
+         "compile cljs including tests"
+         []
+         (cljs :output-to "testable.js" :optimizations :whitespace))
 
+(deftask cljs-test
+         "run cljs tests"
+         []
+         (with-pre-wrap
+           (let [testable (first (by-name ["testable.js"] (tgt-files)))
+                 runner (io/resource "runner.js")
+                 runner-path (str (get-env :tgt-path) "/runner.js")]
+             (spit runner-path (slurp runner))
+             (when testable
+               (helpers/dosh "phantomjs" runner-path (.getPath testable))))))
+
+(deftask build
+         "Publish released library to s3 and local repo"
+         []
+         (comp (pom)
+               (add-src)
+               (jar)
+               (install)))
+
+(deftask release
+         "Publish released library to s3 and local repo"
+         []
+         (comp (build)
+               (push)))
