@@ -12,10 +12,7 @@
                  ["s3" {:url "s3p://aurora-repository/releases/" :username (System/getenv "AWS_KEY") :passphrase (System/getenv "AWS_SECRET")}]]
   :dependencies (:dependencies project))
 
-(require '[adzerk.bootlaces :refer :all])
-
 (def +version+ (:version project))
-#_(bootlaces! +version+)
 
 (task-options!
   pom {:project (symbol (str (:group project) "/" (:name project)))
