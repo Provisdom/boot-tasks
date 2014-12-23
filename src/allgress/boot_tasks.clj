@@ -27,16 +27,6 @@
     push {:repo "s3"}
     reload {:on-jsload 'allgress.web-components.core/on-jsload}))
 
-(deftask sync-target
-         "Sync directory contents with a copy in target."
-         [d dir PATH str "Path to directory to sync"]
-         (let [tmp (temp-dir!)]
-           (with-pre-wrap fileset
-                          (boot.file/sync :time (io/file dir) tmp)
-                          (-> fileset
-                              (add-resource tmp)
-                              (commit!)))))
-
 (deftask cljs-testable
          "compile cljs including tests"
          []
