@@ -57,7 +57,6 @@
 (deftask build
          "Publish released library to s3 and local repo"
          []
-         #_(set-env! :resource-paths (set/union (set/difference (get-env :resource-paths) (get-env :asset-paths)) (get-env :source-paths)))
          (comp (pom)
                (jar)
                (install)))
