@@ -56,3 +56,20 @@
          []
          (comp (build)
                (push)))
+
+
+
+(deftask run-jar
+         "execute a jar file"
+         [j jarfile PATH str "jar file to run"]
+         (let [process (atom nil)]
+
+           (cleanup
+             (util/info "\n<< stopping %s>>\n" jarfile)
+             (.destroy @process))
+
+           (with-pre-wrap fileset
+                          (util/info "\n<<  starting %s >>\n" jarfile)
+                          (reset! process (.exec (Runtime/getRuntime) (str "java -jar " jarfile) ))
+                          (future (clojure.java.io/copy (.getInputStream @process) System/out))
+                          fileset)))
