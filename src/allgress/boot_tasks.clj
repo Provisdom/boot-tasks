@@ -72,4 +72,5 @@
                           (util/info "\n<<  starting %s >>\n" jarfile)
                           (reset! process (.exec (Runtime/getRuntime) (str "java -jar " jarfile) ))
                           (future (clojure.java.io/copy (.getInputStream @process) System/out))
+                          (future (clojure.java.io/copy (.getErrorStream @process) System/err))
                           fileset)))
