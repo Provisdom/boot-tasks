@@ -12,20 +12,36 @@
     [adzerk.boot-cljs :refer [cljs]]
     [adzerk.boot-reload :refer [reload]]))
 
+(defn- read-project
+  []
+  (set-env! :dependencies (conj (get-env :dependencies) '[leiningen-core "2.5.0"]))
+  (use 'leiningen.core.project)
+
+  (let [p (read-string (slurp "project.clj"))]
+    (into {:project-name (nth p 1)
+           :version (nth p 2)}
+          (map vec (partition 2 (drop 3 p))))))
+
 (defn default-task-options!
-  [project]
-  (task-options!
-    cljs {:unified-mode  true
-          :source-map    true
-          :optimizations :none}
-    pom {:project     (symbol (str (:group project) "/" (:name project)))
-         :version     (:version project)
-         :description (:description project)
-         :url         (:url project)
-         :scm         (:scm project)
-         :license     (:license project)}
-    push {:repo "s3"}
-    reload {:on-jsload 'allgress.web-components.core/on-jsload}))
+  []
+  (let [project (read-project)]
+    (task-options!
+      cljs {:unified-mode  true
+            :source-map    true
+            :optimizations :none}
+      pom {:project     (:project-name project)
+           :version     (:version project)
+           :description (:description project)
+           :url         (:url project)
+           :scm         (:scm project)
+           :license     (:license project)}
+      push {:repo "s3"}
+      reload {:on-jsload 'allgress.web-components.core/on-jsload})))
+
+(defn set-project-deps!
+  []
+  (let [project (read-project)]
+    (set-env! :dependencies (into (get-env :dependencies) (vec (:dependencies project))))))
 
 (deftask cljs-testable
          "compile cljs including tests"
@@ -56,8 +72,6 @@
          []
          (comp (build)
                (push)))
-
-
 
 (deftask run-jar
          "execute a jar file"

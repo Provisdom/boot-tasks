@@ -10,7 +10,7 @@
   :repositories [["clojars" "http://clojars.org/repo/"]
                  ["maven-central" "http://repo1.maven.org/maven2/"]
                  ["s3" {:url "s3p://aurora-repository/releases/" :username (System/getenv "AWS_KEY") :passphrase (System/getenv "AWS_SECRET")}]]
-  :dependencies (:dependencies project))
+  :dependencies (vec (:dependencies project)))
 
 (def +version+ (:version project))
 
