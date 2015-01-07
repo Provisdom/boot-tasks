@@ -10,7 +10,8 @@
     [boot.task-helpers :as helpers]
     [boot.tmpregistry :refer [add-sync!]]
     [adzerk.boot-cljs :refer [cljs]]
-    [adzerk.boot-reload :refer [reload]]))
+    [adzerk.boot-reload :refer [reload]]
+    [deraen.boot-cljx :refer [cljx]]))
 
 (defn- read-project
   []
@@ -19,24 +20,29 @@
 
   (let [p (read-string (slurp "project.clj"))]
     (into {:project-name (nth p 1)
-           :version (nth p 2)}
+           :version      (nth p 2)}
           (map vec (partition 2 (drop 3 p))))))
 
-(defn default-task-options!
+(defn pom-options!
   []
   (let [project (read-project)]
     (task-options!
-      cljs {:unified-mode  true
-            :source-map    true
-            :optimizations :none}
       pom {:project     (:project-name project)
            :version     (:version project)
            :description (:description project)
            :url         (:url project)
            :scm         (:scm project)
-           :license     (:license project)}
-      push {:repo "s3"}
-      reload {:on-jsload 'allgress.web-components.core/on-jsload})))
+           :license     (:license project)})))
+
+(defn default-task-options!
+  []
+  (pom-options!)
+  (task-options!
+    cljs {:unified-mode  true
+          :source-map    true
+          :optimizations :none}
+    push {:repo "s3"}
+    reload {:on-jsload 'allgress.web-components.core/on-jsload}))
 
 (defn set-project-deps!
   []
@@ -60,10 +66,18 @@
                             (util/dosh "phantomjs" runner-path (.getPath testable))))
                         fileset))
 
+(deftask asset-paths
+         "Set :asset-paths"
+         [a asset-paths PATHS #{str} ":asset-paths"]
+         (set-env! :asset-paths asset-paths)
+         (with-pre-wrap fileset
+                        fileset))
+
 (deftask build
-         "Publish released library to s3 and local repo"
+         "Publish library to local repo"
          []
-         (comp (pom)
+         (comp (cljx)
+               (pom)
                (jar)
                (install)))
 
@@ -84,7 +98,7 @@
 
            (with-pre-wrap fileset
                           (util/info "\n<<  starting %s >>\n" jarfile)
-                          (reset! process (.exec (Runtime/getRuntime) (str "java -jar " jarfile) ))
+                          (reset! process (.exec (Runtime/getRuntime) (str "java -jar " jarfile)))
                           (future (clojure.java.io/copy (.getInputStream @process) System/out))
                           (future (clojure.java.io/copy (.getErrorStream @process) System/err))
                           fileset)))
