@@ -1,5 +1,5 @@
 (ns allgress.boot-tasks
-  {:boot/export-tasks true}
+  #_{:boot/export-tasks true}
   (:require
     [clojure.set :as set]
     [boot.pod :as pod]
@@ -102,3 +102,15 @@
                           (future (clojure.java.io/copy (.getInputStream @process) System/out))
                           (future (clojure.java.io/copy (.getErrorStream @process) System/err))
                           fileset)))
+
+(deftask build-uberjar
+         "Builds an uberjar of this project that can be run with java -jar."
+         []
+         (let [project (read-project)
+               project-name (:project-name project)
+               core (symbol (str (namespace project-name) "." (name project-name) ".core"))]
+           (comp
+             (pom)
+             (aot :namespace #{core})
+             (uber)
+             (jar :main core))))

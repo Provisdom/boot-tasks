@@ -1,6 +1,10 @@
 allgress/boot-tasks
 ========================
 
+Revision 0.1.7
+--------------
+1. Add build-uberjar task.
+
 Revision 0.1.6
 --------------
 1. Add asset-paths task.
