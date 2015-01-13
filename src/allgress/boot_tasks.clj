@@ -15,7 +15,7 @@
 
 (defn- read-project
   []
-  (set-env! :dependencies (conj (get-env :dependencies) '[leiningen-core "2.5.0"]))
+  (set-env! :dependencies (conj (get-env :dependencies) '[leiningen-core "2.5.1"]))
   (use 'leiningen.core.project)
 
   (let [p (read-string (slurp "project.clj"))]
@@ -32,7 +32,7 @@
            :description (:description project)
            :url         (:url project)
            :scm         (:scm project)
-           :license     (:license project)})))
+           :license {(:name (:license project)) (:url (:license project))}})))
 
 (defn default-task-options!
   []
@@ -110,6 +110,7 @@
                project-name (:project-name project)
                core (symbol (str (namespace project-name) "." (name project-name) ".core"))]
            (comp
+             (cljx)
              (pom)
              (aot :namespace #{core})
              (uber)

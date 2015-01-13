@@ -20,8 +20,7 @@
        :description "Allgress boot-tasks."
        :url "https://github.com/allgress/boot-tasks"
        :scm {:url "https://github.com/allgress/boot-tasks"}
-       :license {:name "Eclipse Public License"
-                   :url  "http://www.eclipse.org/legal/epl-v10.html"}}
+       :license {"Allgress" "(c) 2015 Allgress Inc."}}
   push {:repo "s3"})
 
 (deftask build
