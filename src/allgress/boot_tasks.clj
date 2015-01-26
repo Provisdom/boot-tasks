@@ -43,7 +43,7 @@
           :optimizations :none}
     push {:repo "s3"}
     reload {:on-jsload 'allgress.web-components.core/on-jsload}
-    watch {:debounce 200}))
+    watch {:debounce 50}))
 
 (defn set-project-deps!
   []
@@ -113,6 +113,6 @@
            (comp
              (cljx)
              (pom)
-             (aot :all)
+             (aot :all true)
              (uber)
              (jar :main core))))
