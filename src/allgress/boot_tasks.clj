@@ -113,6 +113,6 @@
            (comp
              (cljx)
              (pom)
-             (aot :all true)
+             (aot :namespace #{core})
              (uber)
              (jar :main core))))

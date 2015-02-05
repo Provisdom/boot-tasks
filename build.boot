@@ -1,4 +1,4 @@
-(set-env! :dependencies '[[leiningen-core "2.5.0"]])
+(set-env! :dependencies '[[leiningen-core "2.5.1"]])
 (use 'leiningen.core.project)
 
 (eval (read-string (slurp "project.clj")))
