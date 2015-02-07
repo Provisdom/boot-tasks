@@ -50,12 +50,12 @@
   (let [project (read-project)]
     (set-env! :dependencies (into (get-env :dependencies) (vec (:dependencies project))))))
 
-(deftask cljs-testable
+#_(deftask cljs-testable
          "compile cljs including tests"
          []
          (cljs :output-to "testable.js" :optimizations :whitespace))
 
-(deftask cljs-test
+#_(deftask cljs-test
          "run cljs tests"
          []
          (with-pre-wrap fileset
