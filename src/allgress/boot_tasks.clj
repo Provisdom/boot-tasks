@@ -7,6 +7,8 @@
     [boot.core :refer :all]
     [boot.task.built-in :refer :all]
     [clojure.java.io :as io]
+    [clojure.data.json :as json]
+    [cljs.source-map :as src-map]
     [boot.task-helpers :as helpers]
     [boot.tmpregistry :refer [add-sync!]]
     [adzerk.boot-cljs :refer [cljs]]
@@ -15,7 +17,7 @@
 
 (defn- read-project
   []
-  (set-env! :dependencies (conj (get-env :dependencies) '[leiningen-core "2.5.1"]))
+  (set-env! :dependencies (conj (get-env :dependencies) '[leiningen-core "2.5.0" :scope "test"]))
   (use 'leiningen.core.project)
 
   (let [p (read-string (slurp "project.clj"))]
@@ -116,3 +118,26 @@
              (aot :namespace #{core})
              (uber)
              (jar :main core))))
+
+#_(deftask cljs-map
+         "Builds source-mapping utilities and data based on *.js.map files"
+         []
+         (let [tmp (temp-dir!)]
+           (fn middleware [next-handler]
+             (fn handler [fileset]
+               (empty-dir! tmp)
+               (let [in-files (output-files fileset)
+                     map-files (by-ext [".js.map"] in-files)]
+                 (doseq [in map-files]
+                   (let [in-file (tmpfile in)
+                         in-path (tmppath in)
+                         out-path (str in-path ".bork")
+                         out-file (io/file tmp out-path)
+                         source-map (src-map/decode (json/read-str (slurp in-file) :key-fn keyword))]
+                     (doto out-file
+                       io/make-parents
+                       (spit (json/write-str source-map)))))
+                 (-> fileset
+                     (add-resource tmp)
+                     commit!
+                     next-handler))))))
