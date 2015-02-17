@@ -5,7 +5,8 @@
   :license {:name "(c) 2015 Allgress Inc."
             :url "http://www.allgress.com"}
   :dependencies [[org.clojure/clojure "1.7.0-alpha5"]
-                 [org.clojure/clojurescript "0.0-2760"]
+                 [org.clojure/clojurescript "0.0-2727"]
+                 [leiningen-core "2.5.1"]
                  [boot/core "2.0.0-rc9"]
                  [adzerk/boot-cljs "0.0-2760-0"]
                  [adzerk/boot-reload "0.2.4"]

@@ -1,6 +1,7 @@
 (ns allgress.boot-tasks
   #_{:boot/export-tasks true}
   (:require
+    [leiningen.core.project :refer :all]
     [clojure.set :as set]
     [boot.pod :as pod]
     [boot.util :as util]
@@ -17,9 +18,6 @@
 
 (defn- read-project
   []
-  (set-env! :dependencies (conj (get-env :dependencies) '[leiningen-core "2.5.0" :scope "test"]))
-  (use 'leiningen.core.project)
-
   (let [p (read-string (slurp "project.clj"))]
     (into {:project-name (nth p 1)
            :version      (nth p 2)}
@@ -50,7 +48,7 @@
 (defn set-project-deps!
   []
   (let [project (read-project)]
-    (set-env! :dependencies (into (get-env :dependencies) (vec (:dependencies project))))))
+    (set-env! :dependencies #(into % (vec (:dependencies project))))))
 
 #_(deftask cljs-testable
          "compile cljs including tests"
