@@ -14,7 +14,8 @@
     [boot.tmpregistry :refer [add-sync!]]
     [adzerk.boot-cljs :refer [cljs]]
     [adzerk.boot-reload :refer [reload]]
-    [deraen.boot-cljx :refer [cljx]]))
+    [deraen.boot-cljx :refer [cljx]]
+    [cljsjs.boot-cljsjs :refer [from-cljsjs]]))
 
 (defn- read-project
   []
@@ -87,6 +88,13 @@
          []
          (comp (build)
                (push)))
+
+(deftask cljs-build
+         "Build CLJS content in target folder"
+         []
+         (comp (from-cljsjs)
+               (cljx)
+               (cljs)))
 
 (deftask run-jar
          "execute a jar file"
