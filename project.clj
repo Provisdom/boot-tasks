@@ -1,4 +1,4 @@
-(defproject allgress/boot-tasks "0.1.15"
+(defproject allgress/boot-tasks "0.1.16"
   :description "Allgress boot-tasks."
   :url "https://github.com/allgress/boot-tasks"
   :scm {:url "https://github.com/allgress/boot-tasks"}
@@ -7,7 +7,7 @@
   :dependencies [[org.clojure/clojure "1.7.0-alpha5"]
                  [org.clojure/clojurescript "0.0-2814"]
                  [leiningen-core "2.5.1"]
-                 [boot/core "2.0.0-rc12"]
+                 [boot/core "2.0.0-rc13"]
                  [adzerk/boot-cljs "0.0-2814-3"]
                  [adzerk/boot-reload "0.2.6"]
                  [deraen/boot-cljx "0.2.2"]

@@ -1,6 +1,10 @@
 allgress/boot-tasks
 ========================
 
+Revision 0.1.16
+---------------
+1. Update to boot RC13
+
 Revision 0.1.7
 --------------
 1. Add build-uberjar task.
