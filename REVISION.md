@@ -1,6 +1,10 @@
 allgress/boot-tasks
 ========================
 
+Revision 0.1.17
+---------------
+1. Update release to push to Archiva
+
 Revision 0.1.16
 ---------------
 1. Update to boot RC13

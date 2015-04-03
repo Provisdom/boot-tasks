@@ -9,6 +9,9 @@
   :wagons '[[s3-wagon-private "1.1.2"]]
   :repositories [["clojars" "http://clojars.org/repo/"]
                  ["maven-central" "http://repo1.maven.org/maven2/"]
+                 ["releases" {:url "http://archiva:8080/repository/internal"
+                               :username (System/getenv "ARCHIVA_USERNAME")
+                               :password (System/getenv "ARCHIVA_PASSWORD")}]
                  ["s3" {:url "s3p://aurora-repository/releases/" :username (System/getenv "AWS_KEY") :passphrase (System/getenv "AWS_SECRET")}]]
   :dependencies (vec (:dependencies project)))
 
@@ -21,7 +24,7 @@
        :url "https://github.com/allgress/boot-tasks"
        :scm {:url "https://github.com/allgress/boot-tasks"}
        :license {"Allgress" "(c) 2015 Allgress Inc."}}
-  push {:repo "s3"})
+  push {:repo "releases"})
 
 (deftask build
          "Publish released library to s3 and local repo"
