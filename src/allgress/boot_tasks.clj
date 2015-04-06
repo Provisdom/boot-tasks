@@ -112,6 +112,22 @@
                           (future (clojure.java.io/copy (.getErrorStream @process) System/err))
                           fileset)))
 
+(deftask docker-compose
+         "execute docker-compose"
+         []
+         (let [process (atom nil)]
+
+           (cleanup
+             (util/info "\n<< stopping docker-compose>>\n")
+             (.exec (Runtime/getRuntime) "docker-compose stop"))
+
+           (with-pre-wrap fileset
+                          (util/info "\n<<  starting  >>\n")
+                          (reset! process (.exec (Runtime/getRuntime) "docker-compose start"))
+                          #_(future (clojure.java.io/copy (.getInputStream @process) System/out))
+                          #_(future (clojure.java.io/copy (.getErrorStream @process) System/err))
+                          fileset)))
+
 (deftask build-uberjar
          "Builds an uberjar of this project that can be run with java -jar."
          []
