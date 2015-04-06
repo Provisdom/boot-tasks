@@ -42,7 +42,7 @@
     cljs {:unified-mode  true
           :source-map    true
           :optimizations :none}
-    push {:repo "s3"}
+    push {:repo "releases"}
     reload {:on-jsload 'allgress.web-components.core/on-jsload}
     watch {:debounce 50}))
 
@@ -84,7 +84,7 @@
                (install)))
 
 (deftask release
-         "Publish released library to s3 and local repo"
+         "Publish released library to archiva and local repo"
          []
          (comp (build)
                (push)))
