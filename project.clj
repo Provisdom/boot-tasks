@@ -1,4 +1,4 @@
-(defproject allgress/boot-tasks "0.2.0"
+(defproject allgress/boot-tasks "0.2.1"
   :description "Allgress boot-tasks."
   :url "https://github.com/allgress/boot-tasks"
   :scm {:url "https://github.com/allgress/boot-tasks"}

@@ -43,8 +43,10 @@
           :source-map    true
           :optimizations :none}
     push {:repo "releases"}
-    reload {:on-jsload 'allgress.web-components.core/on-jsload}
-    watch {:debounce 50}))
+    watch {:debounce 50})
+  #_(when (bound? (find-var 'allgress.web-components.core/on-jsload))
+    (task-options!
+      reload {:on-jsload 'allgress.web-components.core/on-jsload})))
 
 (defn set-project-deps!
   []
@@ -119,13 +121,15 @@
 
            (cleanup
              (util/info "\n<< stopping docker-compose>>\n")
-             (.exec (Runtime/getRuntime) "docker-compose stop"))
+             (reset! process (.exec (Runtime/getRuntime) "docker-compose stop"))
+             (future (clojure.java.io/copy (.getInputStream @process) System/out))
+             (future (clojure.java.io/copy (.getErrorStream @process) System/err)))
 
            (with-pre-wrap fileset
                           (util/info "\n<<  starting  >>\n")
                           (reset! process (.exec (Runtime/getRuntime) "docker-compose start"))
-                          #_(future (clojure.java.io/copy (.getInputStream @process) System/out))
-                          #_(future (clojure.java.io/copy (.getErrorStream @process) System/err))
+                          (future (clojure.java.io/copy (.getInputStream @process) System/out))
+                          (future (clojure.java.io/copy (.getErrorStream @process) System/err))
                           fileset)))
 
 (deftask build-uberjar

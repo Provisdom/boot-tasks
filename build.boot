@@ -11,8 +11,7 @@
                  ["maven-central" "http://repo1.maven.org/maven2/"]
                  ["releases" {:url "http://archiva:8080/repository/internal"
                                :username (System/getenv "ARCHIVA_USERNAME")
-                               :password (System/getenv "ARCHIVA_PASSWORD")}]
-                 ["s3" {:url "s3p://aurora-repository/releases/" :username (System/getenv "AWS_KEY") :passphrase (System/getenv "AWS_SECRET")}]]
+                               :password (System/getenv "ARCHIVA_PASSWORD")}]]
   :dependencies (vec (:dependencies project)))
 
 (def +version+ (:version project))
