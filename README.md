@@ -1,4 +1,4 @@
-# boot-tasks
+# allgress/boot-tasks [![Build Status](http://54.67.24.248:8080/buildStatus/icon?job=boot-tasks)](http://54.67.24.248:8080/job/boot-tasks/)
 
 Custom Allgress tasks for boot.
 
