@@ -8,10 +8,7 @@
   :resource-paths #{"src" "resources"}
   :wagons '[[s3-wagon-private "1.1.2"]]
   :repositories [["clojars" "http://clojars.org/repo/"]
-                 ["maven-central" "http://repo1.maven.org/maven2/"]
-                 ["releases" {:url "http://archiva:8080/repository/internal"
-                               :username (System/getenv "ARCHIVA_USERNAME")
-                               :password (System/getenv "ARCHIVA_PASSWORD")}]]
+                 ["maven-central" "http://repo1.maven.org/maven2/"]]
   :dependencies (vec (:dependencies project)))
 
 (def +version+ (:version project))
@@ -19,10 +16,10 @@
 (task-options!
   pom {:project (symbol (str (:group project) "/" (:name project)))
        :version +version+
-       :description "Allgress boot-tasks."
-       :url "https://github.com/allgress/boot-tasks"
-       :scm {:url "https://github.com/allgress/boot-tasks"}
-       :license {"Allgress" "(c) 2015 Allgress Inc."}}
+       :description "Provisdom boot-tasks."
+       :url "https://github.com/Provisdom/boot-tasks"
+       :scm {:url "https://github.com/Provisdom/boot-tasks"}
+       :license {"Provisdom" "(c) 2015 Provisdom Inc."}}
   push {:repo "releases"})
 
 (deftask build

@@ -1,4 +1,4 @@
-(ns allgress.boot-tasks
+(ns provisdom.boot-tasks
   #_{:boot/export-tasks true}
   (:require
     [leiningen.core.project :refer :all]
@@ -44,9 +44,9 @@
           :optimizations :none}
     push {:repo "releases"}
     watch {:debounce 50})
-  #_(when (bound? (find-var 'allgress.web-components.core/on-jsload))
+  #_(when (bound? (find-var 'provisdom.web-components.core/on-jsload))
     (task-options!
-      reload {:on-jsload 'allgress.web-components.core/on-jsload})))
+      reload {:on-jsload 'provisdom.web-components.core/on-jsload})))
 
 (defn set-project-deps!
   []
