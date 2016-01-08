@@ -1,4 +1,4 @@
-(set-env! :dependencies '[[leiningen-core "2.5.0" :scope "test"]])
+(set-env! :dependencies '[[leiningen-core "2.5.3" :scope "test"]])
 (use 'leiningen.core.project)
 
 (eval (read-string (slurp "project.clj")))
@@ -6,7 +6,6 @@
 (set-env!
   :source-paths #{"src"}
   :resource-paths #{"src" "resources"}
-  :wagons '[[s3-wagon-private "1.1.2"]]
   :repositories [["clojars" "http://clojars.org/repo/"]
                  ["maven-central" "http://repo1.maven.org/maven2/"]]
   :dependencies (vec (:dependencies project)))
