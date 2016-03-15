@@ -1,4 +1,4 @@
-(defproject provisdom/boot-tasks "0.4.1"
+(defproject provisdom/boot-tasks "0.4.2"
   :description "Provisdom boot-tasks."
   :url "https://github.com/Provisdom/boot-tasks"
   :scm {:url "https://github.com/Provisdom/boot-tasks"}

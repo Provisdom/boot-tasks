@@ -1,16 +1,9 @@
 (ns provisdom.boot-tasks
   #_{:boot/export-tasks true}
   (:require
-    [leiningen.core.project :refer :all]
-    [clojure.set :as set]
-    [boot.pod :as pod]
     [boot.util :as util]
     [boot.core :refer :all]
     [boot.task.built-in :refer :all]
-    [clojure.java.io :as io]
-    [clojure.data.json :as json]
-    [cljs.source-map :as src-map]
-    [boot.task-helpers :as helpers]
     [boot.tmpregistry :refer [add-sync!]]
     [adzerk.boot-cljs :refer [cljs]]
     [adzerk.boot-reload :refer [reload]]
