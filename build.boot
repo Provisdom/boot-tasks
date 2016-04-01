@@ -9,7 +9,8 @@
   :resource-paths #{"src" "resources"}
   :repositories [["clojars" "http://clojars.org/repo/"]
                  ["maven-central" "http://repo1.maven.org/maven2/"]]
-  :dependencies (vec (:dependencies project)))
+  :dependencies (vec (:dependencies project))
+  :wagons '[[s3-wagon-private "1.2.0"]])
 
 (def +version+ (:version project))
 
