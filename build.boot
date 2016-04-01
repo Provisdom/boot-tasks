@@ -14,12 +14,12 @@
 (def +version+ (:version project))
 
 (task-options!
-  pom {:project (symbol (str (:group project) "/" (:name project)))
-       :version +version+
+  pom {:project     (symbol (str (:group project) "/" (:name project)))
+       :version     +version+
        :description "Provisdom boot-tasks."
-       :url "https://github.com/Provisdom/boot-tasks"
-       :scm {:url "https://github.com/Provisdom/boot-tasks"}
-       :license {"Provisdom" "(c) 2015 Provisdom Inc."}}
+       :url         "https://github.com/Provisdom/boot-tasks"
+       :scm         {:url "https://github.com/Provisdom/boot-tasks"}
+       :license     {"Provisdom" "(c) 2015 Provisdom Inc."}}
   push {:repo "releases"})
 
 (deftask build
@@ -31,7 +31,13 @@
                (install)))
 
 (deftask release
-         "Publish released library to s3 and local repo"
-         []
-         (comp (build)
-               (push)))
+         "Publish library to S3"
+         [u access-key VALUE str "Access key for rep"
+          p secret-key VALUE str "Secret key for repo"
+          r repo-uri VALUE str "The repo uri"]
+         (comp
+           (pom)
+           (jar)
+           (push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
+                            :username   access-key
+                            :passphrase secret-key})))
