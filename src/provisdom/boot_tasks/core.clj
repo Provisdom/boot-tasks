@@ -1,4 +1,4 @@
-(ns provisdom.boot-tasks
+(ns provisdom.boot-tasks.core
   #_{:boot/export-tasks true}
   (:require
     [boot.util :as util]
@@ -26,7 +26,7 @@
            :description (:description project)
            :url         (:url project)
            :scm         (:scm project)
-           :license {(:name (:license project)) (:url (:license project))}})))
+           :license     {(:name (:license project)) (:url (:license project))}})))
 
 (defn default-task-options!
   []
@@ -38,8 +38,8 @@
     push {:repo "releases"}
     watch {:debounce 50})
   #_(when (bound? (find-var 'provisdom.web-components.core/on-jsload))
-    (task-options!
-      reload {:on-jsload 'provisdom.web-components.core/on-jsload})))
+      (task-options!
+        reload {:on-jsload 'provisdom.web-components.core/on-jsload})))
 
 (defn set-project-deps!
   []
@@ -47,21 +47,21 @@
     (set-env! :dependencies #(into % (vec (:dependencies project))))))
 
 #_(deftask cljs-testable
-         "compile cljs including tests"
-         []
-         (cljs :output-to "testable.js" :optimizations :whitespace))
+           "compile cljs including tests"
+           []
+           (cljs :output-to "testable.js" :optimizations :whitespace))
 
 #_(deftask cljs-test
-         "run cljs tests"
-         []
-         (with-pre-wrap fileset
-                        (let [testable (first (by-name ["testable.js"] (output-files fileset)))
-                              runner (io/resource "runner.js")
-                              runner-path (str (get-env :tgt-path) "/runner.js")]
-                          (spit runner-path (slurp runner))
-                          (when testable
-                            (util/dosh "phantomjs" runner-path (.getPath testable))))
-                        fileset))
+           "run cljs tests"
+           []
+           (with-pre-wrap fileset
+                          (let [testable (first (by-name ["testable.js"] (output-files fileset)))
+                                runner (io/resource "runner.js")
+                                runner-path (str (get-env :tgt-path) "/runner.js")]
+                            (spit runner-path (slurp runner))
+                            (when testable
+                              (util/dosh "phantomjs" runner-path (.getPath testable))))
+                          fileset))
 
 (deftask asset-paths
          "Set :asset-paths"
@@ -139,24 +139,24 @@
              (jar :main core))))
 
 #_(deftask cljs-map
-         "Builds source-mapping utilities and data based on *.js.map files"
-         []
-         (let [tmp (temp-dir!)]
-           (fn middleware [next-handler]
-             (fn handler [fileset]
-               (empty-dir! tmp)
-               (let [in-files (output-files fileset)
-                     map-files (by-ext [".js.map"] in-files)]
-                 (doseq [in map-files]
-                   (let [in-file (tmpfile in)
-                         in-path (tmppath in)
-                         out-path (str in-path ".bork")
-                         out-file (io/file tmp out-path)
-                         source-map (src-map/decode (json/read-str (slurp in-file) :key-fn keyword))]
-                     (doto out-file
-                       io/make-parents
-                       (spit (json/write-str source-map)))))
-                 (-> fileset
-                     (add-resource tmp)
-                     commit!
-                     next-handler))))))
+           "Builds source-mapping utilities and data based on *.js.map files"
+           []
+           (let [tmp (temp-dir!)]
+             (fn middleware [next-handler]
+               (fn handler [fileset]
+                 (empty-dir! tmp)
+                 (let [in-files (output-files fileset)
+                       map-files (by-ext [".js.map"] in-files)]
+                   (doseq [in map-files]
+                     (let [in-file (tmpfile in)
+                           in-path (tmppath in)
+                           out-path (str in-path ".bork")
+                           out-file (io/file tmp out-path)
+                           source-map (src-map/decode (json/read-str (slurp in-file) :key-fn keyword))]
+                       (doto out-file
+                         io/make-parents
+                         (spit (json/write-str source-map)))))
+                   (-> fileset
+                       (add-resource tmp)
+                       commit!
+                       next-handler))))))
