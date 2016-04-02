@@ -8,10 +8,8 @@ build:
         name: Run tests
         code: |
           lein test
-          boot testing123
   after-steps:
     - script:
       name: Deploy to S3
       code: |
-        boot testing123
         boot release -u $AWS_ACCESS_KEY -p $AWS_SECRET_KEY

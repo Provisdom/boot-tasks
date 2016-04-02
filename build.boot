@@ -47,11 +47,3 @@
            (push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
                             :username   access-key
                             :passphrase secret-key})))
-
-(deftask testing123
-         ""
-         []
-         (println "FOO" (System/getenv "FOO"))
-         (println "BAR" (System/getenv "BAR"))
-         (with-pre-wrap fileset
-                        fileset))
