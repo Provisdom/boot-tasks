@@ -45,5 +45,5 @@
            (pom)
            (jar)
            (push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
-                            :username   access-key
-                            :passphrase secret-key})))
+                            :username   (or access-key (System/getenv "AWS_ACCESS_KEY"))
+                            :passphrase (or secret-key (System/getenv "AWS_SECRET_KEY"))})))
