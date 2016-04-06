@@ -20,6 +20,8 @@
 
 (def +version+ "0.5.1")
 
+(require '[provisdom.boot-tasks.core :refer :all])
+
 (task-options!
   pom {:project     'provisdom/boot-tasks
        :version     +version+
@@ -27,23 +29,3 @@
        :url         "https://github.com/Provisdom/boot-tasks"
        :scm         {:url "https://github.com/Provisdom/boot-tasks"}
        :license     {"Provisdom" "(c) 2015 Provisdom Inc."}})
-
-(deftask build
-         "Publish released library to s3 and local repo"
-         []
-         (set-env! :resource-paths #(conj % "src"))
-         (comp (pom)
-               (jar)
-               (install)))
-
-(deftask release
-         "Publish library to S3"
-         [u access-key VALUE str "Access key for rep"
-          p secret-key VALUE str "Secret key for repo"
-          r repo-uri VALUE str "The repo uri"]
-         (comp
-           (pom)
-           (jar)
-           (push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
-                            :username   (or access-key (System/getenv "AWS_ACCESS_KEY"))
-                            :passphrase (or secret-key (System/getenv "AWS_SECRET_KEY"))})))

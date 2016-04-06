@@ -73,16 +73,21 @@
 (deftask build
          "Publish library to local repo"
          []
-         (comp (cljx)
-               (pom)
+         (comp (pom)
                (jar)
                (install)))
 
 (deftask release
-         "Publish released library to archiva and local repo"
-         []
-         (comp (build)
-               (push)))
+         "Publish library to S3"
+         [u access-key VALUE str "Access key for rep"
+          p secret-key VALUE str "Secret key for repo"
+          r repo-uri VALUE str "The repo uri"]
+         (comp
+           (pom)
+           (jar)
+           (push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
+                            :username   (or access-key (System/getenv "AWS_ACCESS_KEY"))
+                            :passphrase (or secret-key (System/getenv "AWS_SECRET_KEY"))})))
 
 (deftask cljs-build
          "Build CLJS content in target folder"
