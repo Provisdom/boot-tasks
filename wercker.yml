@@ -5,11 +5,6 @@ box:
 build:
   steps:
     - script:
-        name: Run tests
-        code: |
-          lein test
-  after-steps:
-    - script:
-      name: Deploy to S3
-      code: |
-        boot release -u $AWS_ACCESS_KEY -p $AWS_SECRET_KEY
+            name: Deploy to S3
+            code: |
+              boot build publish -u $AWS_ACCESS_KEY -p $AWS_SECRET_KEY
