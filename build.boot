@@ -18,7 +18,7 @@
                   [boot-deps "0.1.6"]]
   :wagons '[[s3-wagon-private "1.2.0"]])
 
-(def +version+ "0.5.1")
+(def +version+ "0.6.0")
 
 (require '[provisdom.boot-tasks.core :refer :all])
 
