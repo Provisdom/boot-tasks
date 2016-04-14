@@ -1,67 +1,12 @@
 (ns provisdom.boot-tasks.core
-  #_{:boot/export-tasks true}
+  {:boot/export-tasks true}
   (:require
     [boot.util :as util]
     [boot.core :refer :all]
     [boot.task.built-in :refer :all]
     [boot.tmpregistry :refer [add-sync!]]
     [adzerk.boot-cljs :refer [cljs]]
-    [adzerk.boot-reload :refer [reload]]
-    [deraen.boot-cljx :refer [cljx]]
     [cljsjs.boot-cljsjs :refer [from-cljsjs]]))
-
-(defn- read-project
-  []
-  (let [p (read-string (slurp "project.clj"))]
-    (into {:project-name (nth p 1)
-           :version      (nth p 2)}
-          (map vec (partition 2 (drop 3 p))))))
-
-(defn pom-options!
-  []
-  (let [project (read-project)]
-    (task-options!
-      pom {:project     (:project-name project)
-           :version     (:version project)
-           :description (:description project)
-           :url         (:url project)
-           :scm         (:scm project)
-           :license     {(:name (:license project)) (:url (:license project))}})))
-
-(defn default-task-options!
-  []
-  (pom-options!)
-  (task-options!
-    cljs {:unified-mode  true
-          :source-map    true
-          :optimizations :none}
-    push {:repo "releases"}
-    watch {:debounce 50})
-  #_(when (bound? (find-var 'provisdom.web-components.core/on-jsload))
-      (task-options!
-        reload {:on-jsload 'provisdom.web-components.core/on-jsload})))
-
-(defn set-project-deps!
-  []
-  (let [project (read-project)]
-    (set-env! :dependencies #(into % (vec (:dependencies project))))))
-
-#_(deftask cljs-testable
-           "compile cljs including tests"
-           []
-           (cljs :output-to "testable.js" :optimizations :whitespace))
-
-#_(deftask cljs-test
-           "run cljs tests"
-           []
-           (with-pre-wrap fileset
-                          (let [testable (first (by-name ["testable.js"] (output-files fileset)))
-                                runner (io/resource "runner.js")
-                                runner-path (str (get-env :tgt-path) "/runner.js")]
-                            (spit runner-path (slurp runner))
-                            (when testable
-                              (util/dosh "phantomjs" runner-path (.getPath testable))))
-                          fileset))
 
 (deftask asset-paths
          "Set :asset-paths"
@@ -73,23 +18,24 @@
 (deftask build
          "Publish library to local repo"
          []
-         (comp (cljx)
-               (pom)
+         (comp (pom)
                (jar)
                (install)))
+
+(deftask publish
+         "Publish library and offer command line options (for wercker)"
+         [u access-key VALUE str "Access key for rep"
+          p secret-key VALUE str "Secret key for repo"
+          r repo-uri VALUE str "The repo uri"]
+         (push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
+                          :username   access-key
+                          :passphrase secret-key}))
 
 (deftask release
          "Publish released library to archiva and local repo"
          []
          (comp (build)
                (push)))
-
-(deftask cljs-build
-         "Build CLJS content in target folder"
-         []
-         (comp (from-cljsjs)
-               (cljx)
-               (cljs)))
 
 (deftask run-jar
          "execute a jar file"
@@ -124,39 +70,3 @@
                           (future (clojure.java.io/copy (.getInputStream @process) System/out))
                           (future (clojure.java.io/copy (.getErrorStream @process) System/err))
                           fileset)))
-
-(deftask build-uberjar
-         "Builds an uberjar of this project that can be run with java -jar."
-         []
-         (let [project (read-project)
-               project-name (:project-name project)
-               core (symbol (str (namespace project-name) "." (name project-name) ".core"))]
-           (comp
-             (cljx)
-             (pom)
-             (aot :namespace #{core})
-             (uber)
-             (jar :main core))))
-
-#_(deftask cljs-map
-           "Builds source-mapping utilities and data based on *.js.map files"
-           []
-           (let [tmp (temp-dir!)]
-             (fn middleware [next-handler]
-               (fn handler [fileset]
-                 (empty-dir! tmp)
-                 (let [in-files (output-files fileset)
-                       map-files (by-ext [".js.map"] in-files)]
-                   (doseq [in map-files]
-                     (let [in-file (tmpfile in)
-                           in-path (tmppath in)
-                           out-path (str in-path ".bork")
-                           out-file (io/file tmp out-path)
-                           source-map (src-map/decode (json/read-str (slurp in-file) :key-fn keyword))]
-                       (doto out-file
-                         io/make-parents
-                         (spit (json/write-str source-map)))))
-                   (-> fileset
-                       (add-resource tmp)
-                       commit!
-                       next-handler))))))
