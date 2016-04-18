@@ -4,7 +4,6 @@
     [boot.util :as util]
     [boot.core :refer :all]
     [boot.task.built-in :refer :all]
-    [boot.tmpregistry :refer [add-sync!]]
     [adzerk.boot-cljs :refer [cljs]]
     [cljsjs.boot-cljsjs :refer [from-cljsjs]]))
 
@@ -28,8 +27,8 @@
           p secret-key VALUE str "Secret key for repo"
           r repo-uri VALUE str "The repo uri"]
          (push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
-                          :username   access-key
-                          :passphrase secret-key}))
+                          :username   (or access-key (System/getenv "AWS_ACCESS_KEY"))
+                          :passphrase (or secret-key (System/getenv "AWS_SECRET_KEY"))}))
 
 (deftask release
          "Publish library to S3"
