@@ -21,6 +21,10 @@
                (jar)
                (install)))
 
+(deftask auto-build
+         []
+         (comp (watch) (pom) (jar) (install)))
+
 (deftask publish
          "Publish library and offer command line options (for wercker)"
          [u access-key VALUE str "Access key for rep"

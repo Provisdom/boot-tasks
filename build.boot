@@ -1,5 +1,5 @@
 (def project 'provisdom/boot-tasks)
-(def version "0.6.0")
+(def version "0.6.1")
 
 (set-env!
   :resource-paths #{"src" "resources"}
