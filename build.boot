@@ -5,7 +5,7 @@
   :resource-paths #{"src"}
   :dependencies '[[org.clojure/clojure "1.8.0" :scope "provided"]
                   [org.clojure/clojurescript "1.9.93" :scope "provided"]
-                  [boot/core "2.5.5"]])
+                  [boot/core "2.6.0" :scope "provided"]])
 
 (require '[provisdom.boot-tasks.core :refer :all])
 
