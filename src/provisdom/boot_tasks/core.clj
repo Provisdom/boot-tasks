@@ -65,9 +65,7 @@
       (core/commit!
         (reduce (fn [fileset tmp-file]
                   (let [new-dir (core/tmp-dir!)]
-                    (-> new-dir
-                        (str "/" (:path tmp-file))
-                        io/file
+                    (-> (io/file new-dir (:path tmp-file))
                         (spit (update-content tmp-file)))
                     (core/add-resource fileset new-dir))) fileset matching-tmp-files)))))
 
