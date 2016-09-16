@@ -3,7 +3,7 @@
   (:require
     [boot.util :as util]
     [boot.core :as core]
-    [boot.task.built-in :as bi]
+    [boot.task.built-in :as built-in]
     [clojure.edn :as edn]
     [clojure.java.io :as io]))
 
@@ -17,34 +17,26 @@
 (core/deftask build
   "Publish library to local repo"
   []
-  (comp (bi/pom)
-        (bi/jar)
-        (bi/install)))
+  (comp (built-in/pom)
+        (built-in/jar)
+        (built-in/install)))
 
 (core/deftask auto-build
   []
-  (comp (bi/watch) (bi/pom) (bi/jar) (bi/install)))
+  (comp (built-in/watch) (build)))
 
-(core/deftask publish
-  "Publish library and offer command line options (for wercker)"
-  [u access-key VALUE str "Access key for rep"
-   p secret-key VALUE str "Secret key for repo"
-   r repo-uri VALUE str "The repo uri"]
-  (bi/push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
-                      :username   (or access-key (System/getenv "AWS_ACCESS_KEY"))
-                      :passphrase (or secret-key (System/getenv "AWS_SECRET_KEY"))}))
-
-(core/deftask release
-  "Publish library to S3"
+(core/deftask push-jar
+  "Build and publish library to S3. Defaults to Provisdom's S3 maven repo using AWS_ACCESS_KEY_ID
+  and AWS_SECRET_KEY for the env vars for `push`."
   [u access-key VALUE str "Access key for rep"
    p secret-key VALUE str "Secret key for repo"
    r repo-uri VALUE str "The repo uri"]
   (comp
-    (bi/pom)
-    (bi/jar)
-    (bi/push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
-                        :username   (or access-key (System/getenv "AWS_ACCESS_KEY"))
-                        :passphrase (or secret-key (System/getenv "AWS_SECRET_KEY"))})))
+    (built-in/pom)
+    (built-in/jar)
+    (built-in/push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
+                              :username   (or access-key (System/getenv "AWS_ACCESS_KEY_ID"))
+                              :passphrase (or secret-key (System/getenv "AWS_SECRET_KEY"))})))
 
 (core/deftask update-file
   "Updates files whose path matches `match-files` with the value returned from `expr`.
