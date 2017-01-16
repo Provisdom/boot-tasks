@@ -3,6 +3,7 @@
   (:require
     [boot.util :as util]
     [boot.core :as core]
+    [boot.pod :as pod]
     [boot.task.built-in :as built-in]
     [clojure.edn :as edn]
     [clojure.java.io :as io]))
@@ -12,7 +13,7 @@
   [a asset-paths PATHS #{str} ":asset-paths"]
   (core/set-env! :asset-paths asset-paths)
   (core/with-pre-wrap fileset
-    fileset))
+                      fileset))
 
 (core/deftask build
   "Publish library to local repo"
@@ -61,6 +62,19 @@
                         (spit (update-content tmp-file)))
                     (core/add-resource fileset new-dir))) fileset matching-tmp-files)))))
 
+;; taken from https://github.com/boot-clj/boot/wiki/Snippets#check-dependency-conflicts
+(core/deftask check-conflicts
+  "Verify there are no dependency conflicts."
+  []
+  (core/with-pass-thru fs
+                       (require '[boot.pedantic :as pedant])
+                       (let [dep-conflicts (resolve 'pedant/dep-conflicts)]
+                         (if-let [conflicts (not-empty (dep-conflicts pod/env))]
+                           (throw (ex-info (str "Unresolved dependency conflicts. "
+                                                "Use :exclusions to resolve them!")
+                                           conflicts))
+                           (println "\nVerified there are no dependency conflicts.")))))
+
 (core/deftask run-jar
   "execute a jar file"
   [j jarfile PATH str "jar file to run"]
@@ -71,11 +85,11 @@
       (.destroy @process))
 
     (core/with-pre-wrap fileset
-      (util/info "\n<<  starting %s >>\n" jarfile)
-      (reset! process (.exec (Runtime/getRuntime) (str "java -jar " jarfile)))
-      (future (clojure.java.io/copy (.getInputStream @process) System/out))
-      (future (clojure.java.io/copy (.getErrorStream @process) System/err))
-      fileset)))
+                        (util/info "\n<<  starting %s >>\n" jarfile)
+                        (reset! process (.exec (Runtime/getRuntime) (str "java -jar " jarfile)))
+                        (future (clojure.java.io/copy (.getInputStream @process) System/out))
+                        (future (clojure.java.io/copy (.getErrorStream @process) System/err))
+                        fileset)))
 
 (core/deftask docker-compose
   "execute docker-compose"
@@ -89,8 +103,8 @@
       (future (clojure.java.io/copy (.getErrorStream @process) System/err)))
 
     (core/with-pre-wrap fileset
-      (util/info "\n<<  starting  >>\n")
-      (reset! process (.exec (Runtime/getRuntime) "docker-compose start"))
-      (future (clojure.java.io/copy (.getInputStream @process) System/out))
-      (future (clojure.java.io/copy (.getErrorStream @process) System/err))
-      fileset)))
+                        (util/info "\n<<  starting  >>\n")
+                        (reset! process (.exec (Runtime/getRuntime) "docker-compose start"))
+                        (future (clojure.java.io/copy (.getInputStream @process) System/out))
+                        (future (clojure.java.io/copy (.getErrorStream @process) System/err))
+                        fileset)))
