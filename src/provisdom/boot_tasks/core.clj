@@ -6,7 +6,8 @@
     [boot.pod :as pod]
     [boot.task.built-in :as built-in]
     [clojure.edn :as edn]
-    [clojure.java.io :as io]))
+    [clojure.java.io :as io]
+    [clojure.string :as str]))
 
 (core/deftask asset-paths
   "Set :asset-paths"
@@ -15,12 +16,73 @@
   (core/with-pre-wrap fileset
                       fileset))
 
-(core/deftask build
-  "Publish library to local repo"
+(defn pom-opts
+  "Returns the `pom` task options."
   []
-  (comp (built-in/pom)
-        (built-in/jar)
-        (built-in/install)))
+  (-> #'built-in/pom meta :task-options))
+
+(defn snapshot?
+  "Return true if `version` is a SNAPSHOT version"
+  [version]
+  (str/ends-with? version "SNAPSHOT"))
+
+(def semver-pattern #"^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$")
+
+(defn- maybe-int
+  [x]
+  (try (Integer/parseInt x) (catch NumberFormatException _ x)))
+
+(defn version->map
+  "Parses string `s` into a version map"
+  [s]
+  (let [[[_ major minor patch pre-release build]] (re-seq semver-pattern s)]
+    {:major       (maybe-int major)
+     :minor       (maybe-int minor)
+     :patch       (maybe-int patch)
+     :pre-release pre-release
+     :build       build}))
+
+(defn map->version
+  [m]
+  )
+
+(defn snapshot->version-range
+  [version]
+  (-> version
+      (str/replace "-SNAPSHOT" "")))
+
+(defn dep-version->version-range
+  [dep-vec matching-groups]
+  (let [[artifact-name version & opts] dep-vec
+        opts-map (into {} (partition 2 opts))]
+    #_(if (or (contains? matching-groups (namespace artifact-name))
+              (:timestamp? opts-map))
+        #_(update dep-vec 1))))
+
+(defn set-env!-wrapper
+  [& kvs]
+  (let [env (do (apply core/set-env! kvs)
+                (core/get-env))]
+    (update env :dependencies (fn [deps]
+                                ))))
+
+(core/deftask build
+  "Installs a jar to your local Maven repo."
+  []
+  (comp (built-in/pom) (built-in/jar) (built-in/install)))
+
+(core/deftask inst
+  "Installs a jar to your local Maven repo. If the jar is a SNAPSHOT version then the SNAPSHOT suffix
+  will be replaced with the current time in milliseconds."
+  []
+  (let [pom-task-opts (pom-opts)]
+    (comp (apply built-in/pom
+                 (if (snapshot? (:version pom-task-opts))
+                   (-> (update pom-task-opts :version str/replace "SNAPSHOT" (str (System/currentTimeMillis)))
+                       vec flatten)
+                   []))
+          (built-in/jar)
+          (built-in/install))))
 
 (core/deftask auto-build
   []
