@@ -7,7 +7,11 @@
     [boot.task.built-in :as built-in]
     [clojure.edn :as edn]
     [clojure.java.io :as io]
-    [clojure.string :as str]))
+    [clojure.string :as str]
+    [version-clj.core :as version]))
+
+(def project 'provisdom/boot-tasks)
+(def version "1.0")
 
 (core/deftask asset-paths
   "Set :asset-paths"
@@ -26,45 +30,83 @@
   [version]
   (str/ends-with? version "SNAPSHOT"))
 
-(def semver-pattern #"^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$")
-
-(defn- maybe-int
-  [x]
-  (try (Integer/parseInt x) (catch NumberFormatException _ x)))
-
 (defn version->map
   "Parses string `s` into a version map"
   [s]
-  (let [[[_ major minor patch pre-release build]] (re-seq semver-pattern s)]
-    {:major       (maybe-int major)
-     :minor       (maybe-int minor)
-     :patch       (maybe-int patch)
-     :pre-release pre-release
+  (let [[version-nums qualifiers] (version/version->seq s)
+        [major minor patch] version-nums
+        [prerelease build] qualifiers]
+    {:major       major
+     :minor       minor
+     :patch       patch
+     :pre-release (if (= prerelease "snapshot") "SNAPSHOT" prerelease) ; need to do this b/c the version parsing auto lowercases everything
      :build       build}))
 
 (defn map->version
   [m]
-  )
+  (let [{:keys [major minor patch pre-release build]} m]
+    (str major
+         "."
+         minor
+         (when (and minor patch) ".")
+         patch
+         (when pre-release "-")
+         pre-release
+         build)))
 
-(defn snapshot->version-range
+(defn version->version-range
   [version]
-  (-> version
-      (str/replace "-SNAPSHOT" "")))
+  (let [version-map (version->map version)
+        major-minor (fn [vmap] (str (:major vmap) "." (:minor vmap)))]
+    (str "[" (major-minor version-map) "," (major-minor (update version-map :minor inc)) ")")))
 
 (defn dep-version->version-range
   [dep-vec matching-groups]
-  (let [[artifact-name version & opts] dep-vec
-        opts-map (into {} (partition 2 opts))]
-    #_(if (or (contains? matching-groups (namespace artifact-name))
-              (:timestamp? opts-map))
-        #_(update dep-vec 1))))
+  (let [[artifact-name _ & opts] dep-vec
+        opts-map (into {} (map vec (partition 2 opts)))]
+    (if (or (contains? matching-groups (namespace artifact-name))
+            (:timestamp? opts-map))
+      (update dep-vec 1 version->version-range)
+      dep-vec)))
 
-(defn set-env!-wrapper
+(def ^:dynamic *snapshot-replace-group-ids* #{"provisdom"})
+
+(defn set-env2!
+  "Same as Boot's `set-env!` except this will replace SNAPSHOT versions that have a group
+  id in [[*snapshot-replace-group-ids*]] or have `:timestamp? true` in the dependency vec
+  with a version range."
   [& kvs]
-  (let [env (do (apply core/set-env! kvs)
-                (core/get-env))]
-    (update env :dependencies (fn [deps]
-                                ))))
+  (let [kvs (reduce (fn [acc [k v]]
+                      (conj acc
+                            [k (if (= k :dependencies)
+                                 (fn [deps]
+                                   (let [new-deps (if (fn? v)
+                                                    (v deps)
+                                                    deps)]
+                                     (map #(dep-version->version-range % *snapshot-replace-group-ids*) new-deps)))
+                                 v)])) [] (partition 2 kvs))]
+    (do (apply core/set-env! (flatten kvs))
+        (core/get-env))))
+
+(def boot-home
+  (or (io/file (System/getenv "BOOT_HOME"))
+      (io/file (System/getProperty "user.home") ".boot")))
+
+;; need to figure out how boot-shim.clj really works.
+;; how I would add a function to the boot.core namespace in boot-shim.clj
+(core/deftask install-provisdom-init
+  "Installs the [[provisdom-init!]] function into boot.core."
+  []
+  (spit (io/file boot-home "boot-shim.clj")
+        (str
+          (pr-str
+            '(in-ns boot))
+          (pr-str
+            '(defn provisdom-init!
+               []
+               (set-env! :dependencies #(conj % [provisdom/boot-tasks "RELEASE"]))
+               (alter-var-root #'boot.core/set-env! (constantly set-env2!)))))
+        :append true))
 
 (core/deftask build
   "Installs a jar to your local Maven repo."
@@ -74,11 +116,16 @@
 (core/deftask inst
   "Installs a jar to your local Maven repo. If the jar is a SNAPSHOT version then the SNAPSHOT suffix
   will be replaced with the current time in milliseconds."
-  []
+  [r replace? bool "If SNAPSHOT versions should be replaced with a timestamp"]
   (let [pom-task-opts (pom-opts)]
     (comp (apply built-in/pom
-                 (if (snapshot? (:version pom-task-opts))
-                   (-> (update pom-task-opts :version str/replace "SNAPSHOT" (str (System/currentTimeMillis)))
+                 (if (and replace? (snapshot? (:version pom-task-opts)))
+                   (-> (update pom-task-opts :version (fn [v]
+                                                        (map->version
+                                                          (assoc (version->map v)
+                                                            :patch (str (System/currentTimeMillis))
+                                                            :pre-release nil
+                                                            :build nil))))
                        vec flatten)
                    []))
           (built-in/jar)
