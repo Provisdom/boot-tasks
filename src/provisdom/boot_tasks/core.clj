@@ -105,7 +105,8 @@
 (core/deftask inst
   "Installs a jar to your local Maven repo. If the jar is a SNAPSHOT version then the SNAPSHOT suffix
   will be replaced with the current time in milliseconds."
-  [n no-replace? bool "If SNAPSHOT versions should be replaced with a timestamp"]
+  [n no-replace? bool "If SNAPSHOT versions should be replaced with a timestamp"
+   i skip-install? bool "True if the local install should be skipped."]
   (let [pom-task-opts (pom-opts)]
     (comp (apply built-in/pom
                  (if (and (not no-replace?) (snapshot? (:version pom-task-opts)))
@@ -118,7 +119,7 @@
                        vec flatten)
                    []))
           (built-in/jar)
-          (built-in/install))))
+          (if skip-install? identity (built-in/install)))))
 
 (core/deftask auto-build
   []
@@ -131,8 +132,7 @@
    p secret-key VALUE str "Secret key for repo"
    r repo-uri VALUE str "The repo uri"]
   (comp
-    (built-in/pom)
-    (built-in/jar)
+    (inst :skip-install? true)
     (built-in/push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
                               :username   (or access-key (System/getenv "AWS_ACCESS_KEY"))
                               :passphrase (or secret-key (System/getenv "AWS_SECRET_KEY"))})))
