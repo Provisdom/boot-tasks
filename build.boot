@@ -1,4 +1,5 @@
-
+(def project 'provisdom/boot-tasks)
+(def version "1.0")
 
 (set-env!
   :resource-paths #{"src"}
@@ -9,8 +10,8 @@
 (require '[provisdom.boot-tasks.core :as core :refer :all])
 ;;\.cljs\.edn$
 (task-options!
-  pom {:project     core/project
-       :version     core/version
+  pom {:project     project
+       :version     version
        :description "Provisdom boot-tasks"
        :url         "https://github.com/Provisdom/boot-tasks"
        :scm         {:url "https://github.com/Provisdom/boot-tasks"}

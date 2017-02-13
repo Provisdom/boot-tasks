@@ -10,9 +10,6 @@
     [clojure.string :as str]
     [version-clj.core :as version]))
 
-(def project 'provisdom/boot-tasks)
-(def version "1.0")
-
 (core/deftask asset-paths
   "Set :asset-paths"
   [a asset-paths PATHS #{str} ":asset-paths"]
@@ -28,7 +25,7 @@
 (defn snapshot?
   "Return true if `version` is a SNAPSHOT version"
   [version]
-  (str/ends-with? version "SNAPSHOT"))
+  (str/ends-with? (str/lower-case version) "snapshot"))
 
 (defn version->map
   "Parses string `s` into a version map"
@@ -70,6 +67,7 @@
       dep-vec)))
 
 (def ^:dynamic *snapshot-replace-group-ids* #{"provisdom"})
+(def ^:private boot-set-env! core/set-env!)
 
 (defn set-env2!
   "Same as Boot's `set-env!` except this will replace SNAPSHOT versions that have a group
@@ -85,28 +83,19 @@
                                                     deps)]
                                      (map #(dep-version->version-range % *snapshot-replace-group-ids*) new-deps)))
                                  v)])) [] (partition 2 kvs))]
-    (do (apply core/set-env! (flatten kvs))
+    (do (apply boot-set-env! (flatten kvs))
         (core/get-env))))
 
 (def boot-home
   (or (io/file (System/getenv "BOOT_HOME"))
       (io/file (System/getProperty "user.home") ".boot")))
 
-;; need to figure out how boot-shim.clj really works.
-;; how I would add a function to the boot.core namespace in boot-shim.clj
-(core/deftask install-provisdom-init
-  "Installs the [[provisdom-init!]] function into boot.core."
+(defn provisdom-init
+  "Initializes `set-env!` wrapper."
   []
-  (spit (io/file boot-home "boot-shim.clj")
-        (str
-          (pr-str
-            '(in-ns boot))
-          (pr-str
-            '(defn provisdom-init!
-               []
-               (set-env! :dependencies #(conj % [provisdom/boot-tasks "RELEASE"]))
-               (alter-var-root #'boot.core/set-env! (constantly set-env2!)))))
-        :append true))
+  (alter-var-root #'boot.core/set-env! (constantly set-env2!))
+  (core/set-env! :dependencies identity)
+  nil)
 
 (core/deftask build
   "Installs a jar to your local Maven repo."
@@ -116,10 +105,10 @@
 (core/deftask inst
   "Installs a jar to your local Maven repo. If the jar is a SNAPSHOT version then the SNAPSHOT suffix
   will be replaced with the current time in milliseconds."
-  [r replace? bool "If SNAPSHOT versions should be replaced with a timestamp"]
+  [n no-replace? bool "If SNAPSHOT versions should be replaced with a timestamp"]
   (let [pom-task-opts (pom-opts)]
     (comp (apply built-in/pom
-                 (if (and replace? (snapshot? (:version pom-task-opts)))
+                 (if (and (not no-replace?) (snapshot? (:version pom-task-opts)))
                    (-> (update pom-task-opts :version (fn [v]
                                                         (map->version
                                                           (assoc (version->map v)
