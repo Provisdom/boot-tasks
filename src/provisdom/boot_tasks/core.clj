@@ -105,7 +105,7 @@
 (core/deftask inst
   "Installs a jar to your local Maven repo. If the jar is a SNAPSHOT version then the SNAPSHOT suffix
   will be replaced with the current time in milliseconds."
-  [n no-replace? bool "If SNAPSHOT versions should be replaced with a timestamp"
+  [n no-replace? bool "True if SNAPSHOT versions should NOT be replaced with a timestamp."
    i skip-install? bool "True if the local install should be skipped."]
   (let [pom-task-opts (pom-opts)]
     (comp (apply built-in/pom

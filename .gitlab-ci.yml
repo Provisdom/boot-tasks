@@ -1,4 +1,4 @@
-image: provisdom/docker-clojure:0.1.3
+image: provisdom/docker-clojure:e51b77e8e44fc6feb058a7c25cb0c7b620121813
 
 deploy:
   stage: deploy
