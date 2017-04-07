@@ -134,8 +134,8 @@
   (comp
     (inst :skip-install? true)
     (built-in/push :repo-map {:url        (or repo-uri "s3p://provisdom-artifacts/releases/")
-                              :username   (or access-key (System/getenv "AWS_ACCESS_KEY"))
-                              :passphrase (or secret-key (System/getenv "AWS_SECRET_KEY"))})))
+                              :username   (or access-key (System/getenv "AWS_ACCESS_KEY_ID"))
+                              :passphrase (or secret-key (System/getenv "AWS_SECRET_ACCESS_KEY"))})))
 
 (core/deftask update-file
   "Updates files whose path matches `match-files` with the value returned from `expr`.
