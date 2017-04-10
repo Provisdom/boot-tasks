@@ -132,7 +132,8 @@
    p secret-key VALUE str "Secret key for repo"
    r repo-uri VALUE str "The repo uri"]
   (comp
-    (inst :skip-install? true)
+    ;(inst :skip-install? true)
+    (build)
     (built-in/push :repo-map {:url        (or repo-uri (System/getenv "MAVEN_URI") "s3p://provisdom-artifacts/releases/")
                               :username   (or access-key (System/getenv "AWS_ACCESS_KEY_ID"))
                               :passphrase (or secret-key (System/getenv "AWS_SECRET_ACCESS_KEY"))})))
